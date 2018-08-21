@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/aws/aws-lambda-go/events"
+	"github.com/pkg/errors"
 )
 
 type notFoundError interface {
@@ -12,6 +13,17 @@ type notFoundError interface {
 
 type notFoundErr struct {
 	err error
+}
+
+func newNotFoundErr(err error, msg string) error {
+	if msg == "" {
+		return notFoundErr{
+			err: err,
+		}
+	}
+	return notFoundErr{
+		err: errors.Wrap(err, msg),
+	}
 }
 
 func (ne notFoundErr) Error() string {
@@ -28,6 +40,17 @@ type internalServerErr struct {
 	err error
 }
 
+func newInternalServerErr(err error, msg string) error {
+	if msg == "" {
+		return internalServerErr{
+			err: err,
+		}
+	}
+	return internalServerErr{
+		err: errors.Wrap(err, msg),
+	}
+}
+
 func (ie internalServerErr) Error() string {
 	return ie.err.Error()
 }
@@ -40,6 +63,17 @@ type badRequestError interface {
 
 type badRequestErr struct {
 	err error
+}
+
+func newBadRequestErr(err error, msg string) error {
+	if msg == "" {
+		return badRequestErr{
+			err: err,
+		}
+	}
+	return badRequestErr{
+		err: errors.Wrap(err, msg),
+	}
 }
 
 func (be badRequestErr) Error() string {

@@ -12,6 +12,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/aws/awserr"
 	"github.com/aws/aws-sdk-go-v2/aws/external"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/pkg/errors"
@@ -86,12 +87,18 @@ func getFile(ctx context.Context, key string) (string, error) {
 	getReq := s3Client.GetObjectRequest(input)
 	resp, err := getReq.Send()
 	if err != nil {
-		return "", errors.Wrap(err, "failed to get file from S3")
+		if aerr, ok := err.(awserr.Error); ok {
+			if aerr.Code() == s3.ErrCodeNoSuchKey {
+				return "", newNotFoundErr(err, "no such file")
+			}
+		}
+		return "", newInternalServerErr(err, "failed to get file from S3")
 	}
+
 	defer resp.Body.Close()
 	b, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		return "", err
+		return "", newInternalServerErr(err, "failed to read object body")
 	}
 	return string(b), nil
 }
@@ -101,7 +108,7 @@ func deleteFile(ctx context.Context, key string) error {
 	deleteReq := s3Client.DeleteObjectRequest(input)
 	_, err := deleteReq.Send()
 	if err != nil {
-		return errors.Wrap(err, "failed to delete file from S3")
+		return newInternalServerErr(err, "failed to delete file from S3")
 	}
 	return nil
 }
@@ -139,10 +146,10 @@ func generateKey(data string) string {
 func extractKey(req *events.APIGatewayProxyRequest) (string, error) {
 	pathParams := strings.Split(req.Path, "/")
 	if len(pathParams) < 1 {
-		return "", errors.Errorf("no file specified")
+		return "", newBadRequestErr(errors.Errorf("no file specified"), "")
 	}
 	if len(pathParams) > 1 {
-		return "", errors.Errorf("invalid path selection")
+		return "", newBadRequestErr(errors.Errorf("invalid path selection"), "")
 	}
 	return pathParams[0], nil
 }
