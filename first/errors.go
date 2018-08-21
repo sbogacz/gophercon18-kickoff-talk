@@ -15,7 +15,12 @@ type notFoundErr struct {
 	err error
 }
 
-func wrapNotFoundError(err error, msg string) error {
+func newNotFoundErr(err error, msg string) error {
+	if msg == "" {
+		return notFoundErr{
+			err: err,
+		}
+	}
 	return notFoundErr{
 		err: errors.Wrap(err, msg),
 	}
@@ -35,7 +40,12 @@ type internalServerErr struct {
 	err error
 }
 
-func wrapInternalServerError(err error, msg string) error {
+func newInternalServerErr(err error, msg string) error {
+	if msg == "" {
+		return internalServerErr{
+			err: err,
+		}
+	}
 	return internalServerErr{
 		err: errors.Wrap(err, msg),
 	}
@@ -55,7 +65,12 @@ type badRequestErr struct {
 	err error
 }
 
-func wrapBadRequestError(err error, msg string) error {
+func newBadRequestErr(err error, msg string) error {
+	if msg == "" {
+		return badRequestErr{
+			err: err,
+		}
+	}
 	return badRequestErr{
 		err: errors.Wrap(err, msg),
 	}
