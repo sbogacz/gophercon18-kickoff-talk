@@ -1,0 +1,36 @@
+Go Serverless
+From POC to Prod
+27 Aug 2018
+Tags: go, golang, aws, serverless
+
+Steven Bogacz
+Software Engineer at SendGrid
+steven@bogacz.io
+https://bogacz.io
+@bogaczio
+
+* What are we trying to build?
+
+We want a lightweight, ephemeral storage API
+
+- Create blob
+- Retrieve blob
+- Delete blob
+- All blobs can hang around for a day, somewhat flexible on expiration
+- ...and we want it... in the CLOUD!
+
+* We choose the AWS stack, for reasons
+
+- APIGW + Lambda to serve the code
+- Lambda has had Go support since the start of 2018
+- S3 will be our storage backend
+- Lifecycle policies can handle the expiration for us
+
+* Time to POC!
+Native Go Lambda support with API Gateway isn't quite like must satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type as long as they are compatible with `encoding/json`
+
+In our case, that looks like
+
+ Handler(events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
+
+Notably, there are a few definitions which will technically satisfy the Handler, nor is it a traditional Go interface we're implementing. Our handler can just as easily be unexported.
