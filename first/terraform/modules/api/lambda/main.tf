@@ -1,6 +1,6 @@
 # The IAM role the lambda function will need
 resource "aws_iam_role" "lambda_role" {
-  name = "${var.function_name}-lambda_exec_role"
+  name = "${format("%s_lambda_exec_role",var.function_name)}"
 
   assume_role_policy = <<EOF
 {

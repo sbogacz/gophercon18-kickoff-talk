@@ -1,9 +1,50 @@
-data "aws_iam_policy" "AmazonDynamoDBFullAccess" {
-  arn = "arn:aws:iam::aws:policy/AmazonDynamoDBFullAccess"
+module "store" {
+  source = "s3"
+
+  bucket_name       = "${var.bucket_name}"
+  enable_expiration = "${var.enable_expiration}"
+  ttl               = "${var.ttl}"
+
+  environment = "${var.environment}"
+  tags        = "${var.tags}"
 }
 
-data "aws_iam_policy" "CloudWatchLogsFullAccess" {
-  arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+resource "aws_iam_policy" "lambda_s3_access" {
+  name = "${format("%s_lambda_access", var.bucket_name)}"
+
+  policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": [
+        "s3:ListBucket"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${module.store.bucket_arn}"
+      ]
+    },
+    {
+      "Action": [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+      ],
+      "Effect": "Allow",
+      "Resource": [
+        "${module.store.bucket_arn}/*"
+      ]
+    }
+  ]
+}
+POLICY
+}
+
+resource "aws_iam_policy_attachment" "lambda_s3_access" {
+  name       = "${format("%s_lambda_access", var.bucket_name)}"
+  roles      = ["${module.lambda.role_name}"]
+  policy_arn = "${aws_iam_policy.lambda_s3_access.arn}"
 }
 
 module "lambda" {
@@ -18,9 +59,6 @@ module "lambda" {
   filepath        = "${var.lambda_function_filepath}"
   executable_name = "${var.lambda_executable_name}"
   timeout         = "${var.lambda_timeout}"
-
-  # Dynamo policy
-  attach_policies = ["${data.aws_iam_policy.AmazonDynamoDBFullAccess.arn}", "${data.aws_iam_policy.CloudWatchLogsFullAccess.arn}"]
 
   # X-Ray
   enable_xray  = "${var.enable_xray}"

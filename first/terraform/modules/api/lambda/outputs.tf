@@ -8,6 +8,11 @@ output "lambda_invoke_arn" {
   value       = "${aws_lambda_function.lambda.invoke_arn}"
 }
 
+output "role_name" {
+  description = "the name of the created role"
+  value       = "${aws_iam_role.lambda_role.name}"
+}
+
 output "role_arn" {
   description = "the ARN of the created role"
   value       = "${aws_iam_role.lambda_role.arn}"

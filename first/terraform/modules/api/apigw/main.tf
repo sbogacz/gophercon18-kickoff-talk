@@ -1,5 +1,5 @@
 resource "aws_api_gateway_rest_api" "apigw" {
-  name        = "${var.api_name}-${var.environment}"
+  name        = "${format("%s-%s", var.api_name, var.environment)}"
   description = "${var.api_description}"
 }
 
@@ -61,7 +61,7 @@ resource "aws_api_gateway_deployment" "apigw_deploy" {
 
 # allow API Gateway to trigger lambda from any stage/verb/url
 resource "aws_lambda_permission" "apigw_lambda_trigger" {
-  statement_id  = "${var.api_name}_can_trigger_${var.aws_lambda_function_name}"
+  statement_id  = "${format("%s_can_trigger_%s", var.api_name, var.aws_lambda_function_name)}"
   action        = "lambda:InvokeFunction"
   function_name = "${var.aws_lambda_arn}"
   principal     = "apigateway.amazonaws.com"
