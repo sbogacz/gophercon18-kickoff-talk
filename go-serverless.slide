@@ -27,10 +27,38 @@ We want a lightweight, ephemeral storage API
 - Lifecycle policies can handle the expiration for us
 
 * Time to POC!
-Native Go Lambda support with API Gateway isn't quite like must satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type as long as they are compatible with `encoding/json`
+
+Native Go Lambda support with API Gateway isn't quite like must satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type  as long as they are compatible with `encoding/json`
 
 In our case, that looks like
 
- Handler(events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error)
+ Handler(*events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error)
 
-Notably, there are a few definitions which will technically satisfy the Handler, nor is it a traditional Go interface we're implementing. Our handler can just as easily be unexported.
+Notably, there are a few definitions which will technically satisfy the Handler, nor is it a traditional Go interface we're implementing. Our handler can just as easily be unexported.  
+
+.link https://docs.aws.amazon.com/lambda/latest/dg/go-programming-model-handler-types.html AWS Documentation
+
+* POC Handler Code
+
+Using the `events.APIGatewayProxyRequest` type directly: 
+.code first/main.go /SWITCH OMIT/,/ENDSWITCH OMIT/
+
+* POC POST Code
+
+Some decoupling:
+
+.code first/main.go /func post/,/}
+
+Sub-functions don't know about APIGW-specific types
+
+* POC tests
+
+Using a normal testing approach, we can unit test some helpers
+
+.code first/main_test.go /TEST OMIT/,
+
+This makes us use dummy input, and doesn't give us great coverage
+
+* Fully testing the POC 
+
+** TODO: SHOW DEPLOY + TIME IT TAKES

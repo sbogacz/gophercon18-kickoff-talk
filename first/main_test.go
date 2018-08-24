@@ -1,10 +1,13 @@
+// +build OMIT
+
 package main
 
 import (
 	"testing"
 
 	"github.com/aws/aws-lambda-go/events"
-	"github.com/stretchr/testify/require"
+	// TEST OMIT
+	"github.com/stretchr/testify/require" // HL
 )
 
 func TestHelpers(t *testing.T) {

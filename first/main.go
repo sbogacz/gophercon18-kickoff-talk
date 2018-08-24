@@ -29,7 +29,8 @@ func handler(ctx context.Context, req *events.APIGatewayProxyRequest) (*events.A
 	var data string
 	var key string
 	var err error
-	switch req.HTTPMethod {
+	// SWITCH OMIT
+	switch req.HTTPMethod { // HL
 	case "POST":
 		key, err = postFile(ctx, req.Body)
 	case "GET":
@@ -47,6 +48,7 @@ func handler(ctx context.Context, req *events.APIGatewayProxyRequest) (*events.A
 
 		err = deleteFile(ctx, key)
 	}
+	// ENDSWITCH OMIT
 	if err != nil {
 		return errorResponse(err), err
 	}
