@@ -28,7 +28,7 @@ We want a lightweight, ephemeral storage API
 
 * Time to POC!
 
-Native Go Lambda support with API Gateway isn't quite like must satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type  as long as they are compatible with `encoding/json`
+Native Go Lambda support with API Gateway isn't quite like using the standard `net/http` library. We have to satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type  as long as they are compatible with `encoding/json`
 
 In our case, that looks like
 
