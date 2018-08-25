@@ -65,7 +65,7 @@ module "lambda" {
   tracing_mode = "${var.tracing_mode}"
 
   # Env variables
-  env_vars = "${var.lambda_env_vars}"
+  env_vars = "${merge(map("BUCKET_NAME", module.store.bucket_name), var.lambda_env_vars)}"
 }
 
 module "apigw" {
