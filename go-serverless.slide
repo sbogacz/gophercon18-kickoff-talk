@@ -61,7 +61,18 @@ This makes us use dummy input, and doesn't give us great coverage
 
 * Fully testing the POC 
 
+Initial deploy
+
   terraform apply phase1.plan
 
   33.54s
-** TODO: SHOW DEPLOY + TIME IT TAKES
+
+Subsequent plan and apply
+
+  terraform plan --out=phase1.plan
+
+  12.54
+
+  terraform apply phase1.plan
+
+  19.12
