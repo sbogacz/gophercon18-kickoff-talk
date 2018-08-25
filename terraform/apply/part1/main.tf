@@ -10,7 +10,7 @@ terraform {
 locals {
   talk_phase    = "go18talk-phase1"
   function_name = "toy"
-  filepath      = "${format("%s/../../../%s.zip", path.module, local.function_name)}"
+  filepath      = "${format("%s/../../../first/%s.zip", path.module, local.function_name)}"
 }
 
 module "api" {

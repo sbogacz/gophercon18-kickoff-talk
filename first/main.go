@@ -4,14 +4,12 @@ package main
 
 import (
 	"context"
-	"crypto/sha256"
-	"io"
 	"io/ioutil"
 	"net/http"
-	"net/url"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/gofrs/uuid"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -80,13 +78,15 @@ func main() {
 }
 
 func postFile(ctx context.Context, data string) (string, error) {
-	key := generateKey(data)
+	u, err := uuid.NewV4()
+	if err != nil {
+		return "", newInternalServerErr(err, "failed to generate key")
+	}
+	key := u.String()
 	input := putInput(key, data)
 
-	log.Infof("going to try a put %+v", input)
 	putReq := s3Client.PutObjectRequest(input)
-	_, err := putReq.Send()
-	if err != nil {
+	if _, err = putReq.Send(); err != nil {
 		return "", errors.Wrap(err, "failed to put file in S3")
 	}
 	return key, nil
@@ -144,13 +144,6 @@ func deleteInput(key string) *s3.DeleteObjectInput {
 		Bucket: aws.String(cfg.BucketName),
 		Key:    aws.String(key),
 	}
-}
-
-func generateKey(data string) string {
-	h := sha256.New()
-	io.WriteString(h, cfg.Salt)
-	io.WriteString(h, data)
-	return url.PathEscape(string(h.Sum(nil)))
 }
 
 func extractKey(req *events.APIGatewayProxyRequest) (string, error) {
