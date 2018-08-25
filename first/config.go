@@ -1,8 +1,9 @@
 package main
 
 import (
-	"flag"
 	"fmt"
+	"log"
+	"os"
 )
 
 type config struct {
@@ -11,9 +12,15 @@ type config struct {
 }
 
 func (c *config) ParseEnv() {
-	flag.StringVar(&c.BucketName, flagName("BUCKET_NAME"), "", "the S3 bucket name to use for the application")
-	flag.StringVar(&c.Salt, flagName("SALT"), "", "the S3 bucket name to use for the application")
-	flag.Parse()
+	c.BucketName = os.Getenv("BUCKET_NAME")
+	c.Salt = os.Getenv("SALT")
+
+	if c.BucketName == "" {
+		log.Fatal("bucket name must be specified")
+	}
+	if c.Salt == "" {
+		log.Fatal("a salt value must be provided")
+	}
 }
 
 func flagName(name string) string {

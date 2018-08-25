@@ -7,9 +7,11 @@ import (
 	"crypto/sha256"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
+	"net/url"
 	"strings"
+
+	log "github.com/Sirupsen/logrus"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -22,7 +24,7 @@ import (
 
 var (
 	s3Client *s3.S3
-	cfg      *config
+	cfg      = &config{}
 )
 
 func handler(ctx context.Context, req *events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error) {
@@ -50,6 +52,7 @@ func handler(ctx context.Context, req *events.APIGatewayProxyRequest) (*events.A
 	}
 	// ENDSWITCH OMIT
 	if err != nil {
+		log.WithError(err).Error("failed to process request")
 		return errorResponse(err), err
 	}
 	body := key
@@ -68,6 +71,8 @@ func main() {
 		log.Fatal("failed to load config")
 	}
 
+	log.SetLevel(log.DebugLevel)
+
 	s3Client = s3.New(awsCfg)
 
 	cfg.ParseEnv()
@@ -78,6 +83,7 @@ func postFile(ctx context.Context, data string) (string, error) {
 	key := generateKey(data)
 	input := putInput(key, data)
 
+	log.Infof("going to try a put %+v", input)
 	putReq := s3Client.PutObjectRequest(input)
 	_, err := putReq.Send()
 	if err != nil {
@@ -144,7 +150,7 @@ func generateKey(data string) string {
 	h := sha256.New()
 	io.WriteString(h, cfg.Salt)
 	io.WriteString(h, data)
-	return string(h.Sum(nil))
+	return url.PathEscape(string(h.Sum(nil)))
 }
 
 func extractKey(req *events.APIGatewayProxyRequest) (string, error) {
