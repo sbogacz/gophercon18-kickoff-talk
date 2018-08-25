@@ -76,3 +76,28 @@ Subsequent plan and apply
   terraform apply phase1.plan
 
   19.12
+
+* One approach to lower the dev cycle time
+
+Can take a look at: 
+
+.link https://github.com/localstack/localstack Localstack 
+
+Supports several locally running versions of AWS Services
+- API Gateway
+- DynamoDB
+- Kinesis
+- S3
+- etc.
+
+* One approach to lower the dev cycle time
+
+Configuring our deployment isn't exactly trivial. 
+
+Could use terraform, but there's a current issue open to get the AWS fakes to work:
+
+.link https://github.com/terraform-providers/terraform-provider-aws/issues/5584 Terraform Provider Open Issue
+
+Can have set up scripts to run before we run our tests, e.g. `make test` spins up, `go test`s, spins down.
+
+* A better approach
