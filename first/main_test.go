@@ -10,7 +10,7 @@ import (
 
 func TestHelpers(t *testing.T) {
 	t.Run("extract key should parse the path correctly", func(t *testing.T) {
-		req := &events.APIGatewayProxyRequest{
+		req := &events.APIGatewayProxyRequest{ // HL
 			Path: "blobs/1234",
 		}
 		key, err := extractKey(req)
