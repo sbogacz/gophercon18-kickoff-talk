@@ -9,6 +9,15 @@ steven@bogacz.io
 https://bogacz.io
 @bogaczio
 
+* Our Goals
+
+- Have a serverless app in AWS
+- Idiomatic and approachable Go code
+- Easy to test and iterate on
+- Flexible deployment
+
+Let's work toward them with a toy app
+
 * What are we trying to build?
 
 We want a lightweight, ephemeral storage API
@@ -136,12 +145,11 @@ Where `Store` is
 
 .code third/internal/toy/store.go / Store/,/^}/
 
-* A better approach - Server Start and Stop
+* A better approach - Server Start 
 
-Start and Stop look familiar
+Starting the server looks familiar 
+
 .code third/internal/toy/server.go / Start/,/^}/
-
-.code third/internal/toy/server.go / Stop/,/^}/
 
 * A better approach - Two Store implementations
 Local
