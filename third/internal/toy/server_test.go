@@ -37,7 +37,7 @@ func TestHappyPath(t *testing.T) {
 	testBlob := "this is a test blob"
 	var key string
 	t.Run("create a blob", func(t *testing.T) {
-		resp, err := http.Post(addr, "application/text", strings.NewReader(testBlob))
+		resp, err := http.Post(addr, "application/text", strings.NewReader(testBlob)) // HL
 		require.NoError(t, err)
 		require.Equal(t, http.StatusOK, resp.StatusCode)
 		require.NotNil(t, resp)

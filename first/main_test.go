@@ -17,4 +17,5 @@ func TestHelpers(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, "1234", key)
 	})
+	// ...
 }

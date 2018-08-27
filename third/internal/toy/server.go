@@ -19,8 +19,8 @@ type Server struct {
 	store Store
 	cfg   *Config
 
-	router *chi.Mux
-	cancel chan struct{}
+	router *chi.Mux      // HL
+	cancel chan struct{} // OMIT
 }
 
 // New tries to cerate a new instance of Service
