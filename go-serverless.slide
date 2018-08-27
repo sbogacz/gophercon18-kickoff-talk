@@ -167,7 +167,7 @@ Where `Store` is
 
 .code third/internal/toy/store.go / Store/,/^}/
 
-* A better approach - Server Staart and Stop
+* A better approach - Server Start and Stop
 
 Start and Stop look familiar
 .code third/internal/toy/server.go / Start/,/^}/
