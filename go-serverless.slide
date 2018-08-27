@@ -295,3 +295,5 @@ We can even delete code!
 - Part 4: Remove our new store interface and replace it with go-cloud's `blob.Bucket`, allowing for the same advantages above, and to optionally support more providers in the future
 
 * Questions?
+
+.link https://github.com/sbogacz/gophercon18-kickoff-talk Talk material in GitHub
