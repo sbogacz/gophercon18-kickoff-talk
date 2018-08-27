@@ -1,0 +1,131 @@
+Go Serverless
+From POC to Prod
+27 Aug 2018
+Tags: go, golang, aws, serverless
+
+Steven Bogacz
+Software Engineer at SendGrid
+steven@bogacz.io
+https://bogacz.io
+@bogaczio
+
+* What are we trying to build?
+
+We want a lightweight, ephemeral storage API
+
+- Create blob
+- Retrieve blob
+- Delete blob
+- All blobs can hang around for a day, somewhat flexible on expiration
+- ...and we want it... in the CLOUD!
+
+* We choose the AWS stack, for reasons
+
+- APIGW + Lambda to serve the code
+- Lambda has had Go support since the start of 2018
+- S3 will be our storage backend
+- Lifecycle policies can handle the expiration for us
+
+* Time to POC!
+
+Native Go Lambda support with API Gateway isn't quite like using the standard `net/http` library. We have to satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type  as long as they are compatible with `encoding/json`
+
+In our case, that looks like
+
+ Handler(*events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error)
+
+Notably, there are a few definitions which will technically satisfy the Handler, nor is it a traditional Go interface we're implementing. Our handler can just as easily be unexported.  
+
+.link https://docs.aws.amazon.com/lambda/latest/dg/go-programming-model-handler-types.html AWS Documentation
+
+* POC Handler Code
+
+Using the `events.APIGatewayProxyRequest` type directly: 
+.code first/main.go /SWITCH OMIT/,/ENDSWITCH OMIT/
+
+* POC POST Code
+
+Some decoupling:
+
+.code first/main.go /func post/,/}
+
+Sub-functions don't know about APIGW-specific types
+
+* POC tests
+
+Using a normal testing approach, we can unit test some helpers
+
+.code first/main_test.go /TEST OMIT/,
+
+This makes us use dummy input, and doesn't give us great coverage
+
+* Fully testing the POC 
+
+Initial deploy
+
+  terraform apply phase1.plan
+
+  33.54s
+
+Subsequent plan and apply
+
+  terraform plan --out=phase1.plan
+
+  12.54
+
+  terraform apply phase1.plan
+
+  19.12
+
+* One approach to lower the dev cycle time
+
+Can take a look at: 
+
+.link https://github.com/localstack/localstack Localstack 
+
+Supports several locally running versions of AWS Services
+- API Gateway
+- DynamoDB
+- Kinesis
+- S3
+- etc.
+
+* One approach to lower the dev cycle time
+
+Configuring our deployment isn't exactly trivial. 
+
+Could use terraform, but there's a current issue open to get the AWS fakes to work:
+
+.link https://github.com/terraform-providers/terraform-provider-aws/issues/5584 Terraform Provider Open Issue
+
+Can have set up scripts to run before we run our tests, e.g. `make` `test` spins up, `go` `test` s, spins down.
+
+
+
+* A better approach
+
+
+.link https://github.com/awslabs/aws-lambda-go-api-proxy AWS Lambda Go API Proxy
+
+* Running locally
+
+  ./toy --local-store
+
+Can curl locally, and get faster feedback
+ 
+  curl -XPOST -d @key.json http://127.0.0.1:8080/blobs
+  43823ea6-6f48-49c2-a798-47eb728e50a7
+
+  0.02s
+
+  curl http://127.0.0.1:8080/blobs/43823ea6-6f48-49c2-a798-47eb728e50a7
+  {	"Name": { "S": "banana" }}
+
+  0.01s
+
+  curl -XDELETE -v http://127.0.0.1:8080/blobs/43823ea6-6f48-49c2-a798-47eb728e50a7
+  *   Trying 127.0.0.1...
+  ...
+  < HTTP/1.1 204 No Content
+
+  0.02s
