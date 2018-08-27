@@ -28,15 +28,15 @@ We want a lightweight, ephemeral storage API
 
 * Time to POC!
 
-Native Go Lambda support with API Gateway isn't quite like using the standard `net/http` library. We have to satisfy the Handler interface, which always returns an error, and may optionally accept a `context.Context`, and may have an additional input and output type  as long as they are compatible with `encoding/json`
+- Native Go Lambda support with API Gateway isn't quite like using the standard `net/http` library. 
+- Handler interface requires a `json.Encode`-able object, which precludes using stdlib (unexported fields)
+- `aws-lambda-go/events` has objects for proxy API Gateway Requests/Responses
 
 In our case, that looks like
 
  Handler(*events.APIGatewayProxyRequest) (*events.APIGatewayProxyResponse, error)
 
-Notably, there are a few definitions which will technically satisfy the Handler, nor is it a traditional Go interface we're implementing. Our handler can just as easily be unexported.  
-
-.link https://docs.aws.amazon.com/lambda/latest/dg/go-programming-model-handler-types.html AWS Documentation
+.link https://docs.aws.amazon.com/lambda/latest/dg/go-programming-model-handler-types.html AWS Lambda Handler Documentation
 
 * POC Handler Code
 

@@ -35,7 +35,6 @@ func New(c *Config, s Store) *Server {
 
 // Start starts the server
 func (s *Server) Start() {
-	// route the contenders endpoints
 	s.router.Route("/blobs", func(r chi.Router) { // HL
 		r.Post("/", s.storeBlob)
 		r.Route("/{key}", func(r chi.Router) {
