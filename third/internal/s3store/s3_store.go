@@ -1,19 +1,16 @@
-package store
+package s3store
 
 import (
 	"context"
 	"io/ioutil"
 	"strings"
 
-	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/aws/awserr"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/pkg/errors"
 	"github.com/sbogacz/gophercon18-kickoff-talk/third/internal/httperrs"
 )
-
-var _ Store = (*S3Store)(nil)
 
 // S3Store is an S3 backed implementation of our Store
 // interaface
@@ -22,9 +19,9 @@ type S3Store struct {
 	bucket string
 }
 
-// NewS3Store takes an S3 client and a bucket name, and
+// New takes an S3 client and a bucket name, and
 // returns the S3 implementation of the Store interface
-func NewS3Store(client *s3.S3, bucket string) *S3Store {
+func New(client *s3.S3, bucket string) *S3Store {
 	return &S3Store{
 		client: client,
 		bucket: bucket,
@@ -33,14 +30,14 @@ func NewS3Store(client *s3.S3, bucket string) *S3Store {
 
 // Set takes key and data as a string, saves it to S3, and returns the uuid
 // under which the file is stored
-func (ss *S3Store) Set(ctx context.Context, key, data string) (string, error) {
+func (ss *S3Store) Set(ctx context.Context, key, data string) error {
 	input := putInput(ss.bucket, key, data)
 
 	putReq := ss.client.PutObjectRequest(input)
 	if _, err := putReq.Send(); err != nil {
-		return "", errors.Wrap(err, "failed to put file in S3")
+		return errors.Wrap(err, "failed to put file in S3")
 	}
-	return key, nil
+	return nil
 }
 
 // Get takes a key, and attempts to fetch the data from S3
@@ -97,15 +94,4 @@ func deleteInput(bucket, key string) *s3.DeleteObjectInput {
 		Bucket: aws.String(bucket),
 		Key:    aws.String(key),
 	}
-}
-
-func extractKey(req *events.APIGatewayProxyRequest) (string, error) {
-	pathParams := strings.Split(req.Path, "/")
-	if len(pathParams) < 2 {
-		return "", httperrs.BadRequest(errors.Errorf("no file specified"), "")
-	}
-	if len(pathParams) > 2 {
-		return "", httperrs.BadRequest(errors.Errorf("invalid path selection"), "")
-	}
-	return pathParams[1], nil
 }
