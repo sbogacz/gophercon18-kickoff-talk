@@ -237,3 +237,61 @@ Can curl locally, and get faster feedback
   < HTTP/1.1 204 No Content
 
   0.02s
+
+* Can we do even better? 
+
+What have we gained?
+
+- More idiomatic code, or at least, less domain specific
+- Fairly lightweight local tests leverage more of the code path
+- Can run as either a HTTP server in a traditional deployment or AWS Lambda
+
+We're flexible about what we're deployed on now, but what about our backend?
+
+* Can we do even better? go-cloud
+
+.link https://github.com/google/go-cloud go-cloud project
+
+The go-cloud project aims to provide common interfaces to common services across cloud providers.
+*BEAR* *TRAP* *ALERT* This means that they can only support common operations, wouldn't be helpful for more deployment-specific control *BEAR* *TRAP* *ALERT*
+
+`Bucket` methods cover the functionality we had before
+
+  func NewBucket(b driver.Bucket) *Bucket
+  func (b *Bucket) Delete(ctx context.Context, key string) error
+  func (b *Bucket) NewReader(ctx context.Context, key string) (*Reader, error)
+  func (b *Bucket) NewWriter(ctx context.Context, key string, opt *WriterOptions) (*Writer, error)
+
+We can even delete code!
+
+* Can we do even better? go-cloud
+  tree -I vendor
+  ├── cmd
+  │   ├── http
+  │   │   ├── main.go
+  │   │   └── toy
+  │   └── lambda
+  │       └── main.go
+  ├── go.mod
+  ├── go.sum
+  ├── internal
+  │   ├── httperrs
+  │   │   ├── errors.go
+  │   │   └── errors_test.go
+  │   └── toy
+  │       ├── config.go
+  │       ├── server.go
+  │       └── server_test.go
+  ├── toy
+  └── toy.zip
+  
+  6 directories, 12 files
+
+* Recap
+
+- Part 1: POC code, tightly coupled to AWS, hard to test
+- Part 2: Try to use localstack to test, hard work to set up
+- Part 3: Decouple bulk of logic from target deployment, only worry about incoming messages at the outer layer (`lambda/main.go`) using aws-lambda-go-api-proxy, use an interface for our backend to let us run locally in-memory
+- Part 4: Remove our new store interface and replace it with go-cloud's `blob.Bucket`, allowing for the same advantages above, and to optionally support more providers in the future
+
+* Questions?
