@@ -287,6 +287,18 @@ We can even delete code!
   
   6 directories, 12 files
 
+* Can we do even better? go-cloud
+
+We can use the `fileblob` package for local tests and running locally
+
+.code fourth/internal/toy/server_test.go /^func setupServer/,/^}/
+
+* Can we do even better? go-cloud
+
+Our locally running main can now support both backends... and it wouldn't be much work to support a third (e.g. Google Cloud Storage)
+
+.code fourth/cmd/http/main.go /if localStore/,/go s\.Start/ 
+
 * Recap
 
 - Part 1: POC code, tightly coupled to AWS, hard to test

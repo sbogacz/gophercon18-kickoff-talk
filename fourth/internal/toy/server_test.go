@@ -116,11 +116,12 @@ func setupServer(dir string) error {
 	}
 	addr = fmt.Sprintf("http://127.0.0.1:%d/blobs", port)
 	log.Infof("starting server at %s", addr)
-	store, err := fileblob.NewBucket(dir)
+
+	store, err := fileblob.NewBucket(dir) // HL
 	if err != nil {
 		return errors.Wrap(err, "failed to set up local store")
 	}
-	s = New(c, store)
+	s = New(c, store) // HL
 	return nil
 }
 
