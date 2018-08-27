@@ -1,0 +1,24 @@
+  tree  
+  .
+  ├── cmd 
+  │   ├── http // HL
+  │   │   ├── main.go // HL
+  │   │   └── toy
+  │   └── lambda // HL
+  │       └── main.go // HL
+  ├── internal
+  │   ├── httperrs
+  │   │   ├── errors.go
+  │   │   └── errors_test.go
+  │   ├── s3store
+  │   │   └── s3_store.go // HL
+  │   └── toy
+  │       ├── config.go
+  │       ├── local_store.go // HL
+  │       ├── server.go
+  │       ├── server_test.go
+  │       └── store.go // HL
+  ├── toy
+  └── toy.zip
+
+  7 directories, 13 files

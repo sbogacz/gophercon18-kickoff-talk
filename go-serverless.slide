@@ -55,7 +55,7 @@ Sub-functions don't know about APIGW-specific types
 
 Using a normal testing approach, we can unit test some helpers
 
-.code first/main_test.go /TEST OMIT/,
+.code first/main_test.go /^func Test/,
 
 This makes us use dummy input, and doesn't give us great coverage
 
@@ -119,43 +119,12 @@ Ask how would I do this as idiomatically as possible?
 - We can abstract the store
 
 * A better approach - Our original layout
-  tree  
-  .
-  ├── config.go
-  ├── errors.go
-  ├── errors_test.go
-  ├── main.go
-  ├── main_test.go
-  ├── toy
-  └── toy.zip
 
-  0 directories, 7 files
+.code tree_poc.txt ,
 
 * A better approach - Our new layout
-  tree  
-  .
-  ├── cmd
-  │   ├── http
-  │   │   ├── main.go
-  │   │   └── toy
-  │   └── lambda
-  │       └── main.go
-  ├── internal
-  │   ├── httperrs
-  │   │   ├── errors.go
-  │   │   └── errors_test.go
-  │   ├── s3store
-  │   │   └── s3_store.go
-  │   └── toy
-  │       ├── config.go
-  │       ├── local_store.go
-  │       ├── server.go
-  │       ├── server_test.go
-  │       └── store.go
-  ├── toy
-  └── toy.zip
 
-  7 directories, 13 files
+.code tree_refactor.txt ,
 
 * A better approach - Our new server
 
@@ -211,7 +180,11 @@ As long as we expose our Router
 
 .code third/internal/toy/server.go / Router/,/^}/
 
-we can change our `lambda/main.go`
+we can change our `lambda/main.go` to set up the proxy adapter
+
+.code third/cmd/lambda/main.go /chiLambda =/,/\)\)/
+
+and call it in the Handler
 
 .code third/cmd/lambda/main.go / Handler/,/^}/
 
@@ -265,27 +238,8 @@ The go-cloud project aims to provide common interfaces to common services across
 We can even delete code!
 
 * Can we do even better? go-cloud
-  tree -I vendor
-  ├── cmd
-  │   ├── http
-  │   │   ├── main.go
-  │   │   └── toy
-  │   └── lambda
-  │       └── main.go
-  ├── go.mod
-  ├── go.sum
-  ├── internal
-  │   ├── httperrs
-  │   │   ├── errors.go
-  │   │   └── errors_test.go
-  │   └── toy
-  │       ├── config.go
-  │       ├── server.go
-  │       └── server_test.go
-  ├── toy
-  └── toy.zip
-  
-  6 directories, 12 files
+
+.code tree_gocloud.txt ,
 
 * Can we do even better? go-cloud
 

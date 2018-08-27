@@ -1,0 +1,33 @@
+diff --brief -r third fourth   
+Files third/cmd/http/main.go and fourth/cmd/http/main.go differ // OMIT
+Files third/cmd/http/toy and fourth/cmd/http/toy differ // OMIT
+Files third/cmd/lambda/main.go and fourth/cmd/lambda/main.go differ // OMIT
+Only in fourth: go.mod // OMIT
+Only in fourth: go.sum // OMIT
+Only in third/internal: s3store // HL
+Only in third/internal/toy: local_store.go // HL
+Files third/internal/toy/server.go and fourth/internal/toy/server.go differ
+Files third/internal/toy/server_test.go and fourth/internal/toy/server_test.go differ // OMIT
+Only in third/internal/toy: store.go // HL
+Only in fourth: toy // OMIT
+Only in fourth: vendor // OMIT
+  
+  tree -I vendor
+  ├── cmd
+  │   ├── http
+  │   │   ├── main.go
+  │   │   └── toy
+  │   └── lambda
+  │       └── main.go
+  ├── go.mod // OMIT
+  ├── go.sum // OMIT
+  ├── internal 
+  │   ├── httperrs
+  │   │   ├── errors.go
+  │   │   └── errors_test.go
+  │   └── toy
+  │       ├── config.go
+  │       ├── server.go
+  │       └── server_test.go
+  ├── toy // OMIT
+  └── toy.zip // OMIT

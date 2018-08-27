@@ -1,0 +1,11 @@
+  tree  
+  .
+  ├── config.go
+  ├── errors.go
+  ├── errors_test.go
+  ├── main.go
+  ├── main_test.go
+  ├── toy
+  └── toy.zip
+
+  0 directories, 7 files
