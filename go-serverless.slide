@@ -61,6 +61,8 @@ This makes us use dummy input, and doesn't give us great coverage
 
 * Fully testing the POC 
 
+We use Terraform (a cloud-agnostic Infrastructure-as-Code tool)
+
 Initial deploy
 
   terraform apply phase1.plan
@@ -76,6 +78,8 @@ Subsequent plan and apply
   terraform apply phase1.plan
 
   19.12
+
+.link https://terraform.io Terraform 
 
 * One approach to lower the dev cycle time
 
@@ -100,14 +104,118 @@ Could use terraform, but there's a current issue open to get the AWS fakes to wo
 
 Can have set up scripts to run before we run our tests, e.g. `make` `test` spins up, `go` `test` s, spins down.
 
+Downsides: 
 
+- Lots of overhead to set up (especially without Terraform)
+- No guarantee APIs will behave exactly as they do in AWS
+- Lack of IAM, and other such services can make this a partial solution at best
 
 * A better approach
 
+Ask how would I do this as idiomatically as possible?
+
+- `net/http` is Go's bread and butter
+- We know how to test HTTP Servers in Go
+- We can abstract the store
+
+* A better approach - Our original layout
+  tree  
+  .
+  ├── config.go
+  ├── errors.go
+  ├── errors_test.go
+  ├── main.go
+  ├── main_test.go
+  ├── toy
+  └── toy.zip
+
+  0 directories, 7 files
+
+* A better approach - Our new layout
+  tree  
+  .
+  ├── cmd
+  │   ├── http
+  │   │   ├── main.go
+  │   │   └── toy
+  │   └── lambda
+  │       └── main.go
+  ├── internal
+  │   ├── httperrs
+  │   │   ├── errors.go
+  │   │   └── errors_test.go
+  │   ├── s3store
+  │   │   └── s3_store.go
+  │   └── toy
+  │       ├── config.go
+  │       ├── local_store.go
+  │       ├── server.go
+  │       ├── server_test.go
+  │       └── store.go
+  ├── toy
+  └── toy.zip
+
+  7 directories, 13 files
+
+* A better approach - Our new server
+
+Now we have a server struct
+
+.code third/internal/toy/server.go / Server/,/^}/
+
+Where `Store` is
+
+.code third/internal/toy/store.go / Store/,/^}/
+
+* A better approach - Server Staart and Stop
+
+Start and Stop look familiar
+.code third/internal/toy/server.go / Start/,/^}/
+
+.code third/internal/toy/server.go / Stop/,/^}/
+
+* A better approach - Two Store implementations
+Local
+
+.code third/internal/toy/local_store.go / LocalStore/,/^}/
+
+S3
+
+.code third/internal/s3store/s3_store.go / S3Store/,/^}/
+
+* A better approach - Now with HTTP tests!
+
+With a little setup of our server
+
+.code third/internal/toy/server_test.go / TestMain/,/^}/
+
+* A better approach - Now with HTTP tests!
+
+Now we can write more thorough tests in a familiar way
+
+.code third/internal/toy/server_test.go /testBlob/,/}\)/
+
+* A better approach - Lambda
+
+It's great that our code and tests look a little more stdlib-ish, but how does that translate to our actual deployment, i.e. Lambda???
+
+We can translate the `events.APIGatewayProxyRequest`, either by hand, or with:
 
 .link https://github.com/awslabs/aws-lambda-go-api-proxy AWS Lambda Go API Proxy
 
-* Running locally
+You may have noticed two packages under `cmd`, `lambda` and `http`
+
+* A better approach - Lambda
+
+As long as we expose our Router
+
+.code third/internal/toy/server.go / Router/,/^}/
+
+we can change our `lambda/main.go`
+
+.code third/cmd/lambda/main.go / Handler/,/^}/
+
+* A better approach - Running locally	
 
   ./toy --local-store
 
