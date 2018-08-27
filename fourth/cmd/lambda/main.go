@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"flag"
-	"sync"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/aws/aws-lambda-go/events"
@@ -21,16 +20,11 @@ var (
 	config = &toy.Config{}
 	s      *toy.Server
 
-	once      sync.Once
 	chiLambda *chiadapter.ChiLambda
 )
 
 // Handler satisfies the AWS Lambda Go interface
 func Handler(req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-
-	once.Do(func() {
-		chiLambda = chiadapter.New(s.Router())
-	})
 
 	// If no name is provided in the HTTP request body, throw an error
 	return chiLambda.Proxy(req)
@@ -46,6 +40,8 @@ func main() {
 	}
 	s = toy.New(config, store)
 	go s.Start()
+
+	chiLambda = chiadapter.New(s.Router())
 
 	lambda.Start(Handler)
 }
